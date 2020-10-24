@@ -6,3 +6,6 @@ This repository hosts the codes supplementing two published manuscripts:
 *  [Meta‐analysis of continuous outcomes: Using pseudo IPD created from aggregate data to adjust for baseline imbalance and assess treatment‐by‐baseline modification]( https://doi.org/10.1002/jrsm.1434)
 
 ## One timepoint analysis 
+
+
+## Pre-post analysis
