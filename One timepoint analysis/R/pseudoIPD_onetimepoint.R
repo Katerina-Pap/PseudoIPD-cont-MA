@@ -5,8 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------------
 
 # Load data: example iron levels 
-data.wide<- read.table("C:/users/PAPADIKA/OneDrive - Danone/Desktop/For Github/Data/iron.txt",header=TRUE)
-
+data.wide <- read.table("iron.txt", header=TRUE)
 
 # Make long format
 data.long <- reshape(data.wide, direction='long', 
@@ -29,7 +28,6 @@ data.IPD <- data.frame(study = rep(data.long$study, data.long$n),
                        group = rep(data.long$group, data.long$n))
 
 set.seed(64870236)
-
 data.IPD$ytmp <- rnorm(nrow(data.IPD),0,1)
 head(data.IPD)
 
@@ -52,7 +50,6 @@ data.IPD$arm <-  1000* data.IPD$study+ data.IPD$group
 # Mixed effects approach
 library(nlme)
 ctrl <- lmeControl(opt="optim", msMaxIter=100)
-
 
 #--------------------------------------------------
 #         STUDY FIXED AND GROUP FIXED 
