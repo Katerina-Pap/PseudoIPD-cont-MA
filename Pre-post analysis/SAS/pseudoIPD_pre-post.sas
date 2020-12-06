@@ -4,7 +4,7 @@
 
 data Wang;
 	input study Studyname$ MeanBaseline sdBaseline  
-		MeanPost sdPost  Correlation group;
+		MeanPost sdPost  Correlation Nobs group;
 	datalines;
 1 ATMH    152.28 15.25 132.85 16.72 0.265 780 1
 2 HEP     189.94 16.15 165.06 20.03 0.335 150 1
