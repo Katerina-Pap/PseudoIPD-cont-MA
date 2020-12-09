@@ -1,0 +1,474 @@
+* Encoding: UTF-8.
+data list free/ study year meancontrol sdcontrol ncontrol meanAD sdAD nAD.
+begin data. 
+1 1991         114        25       26    100   39  20
+2 1993          89        32       20     90   33  26
+3 1996          63        30      421     56   22  31
+4 1998         101        31       28    114   35  26
+5 2010          81        31       50     67   23  50
+end data.
+DATASET NAME DataSet1 WINDOW=FRONT.
+
+* restructure data. 
+VARSTOCASES
+  /ID=id
+  /MAKE mean FROM meancontrol meanAD
+  /MAKE sd FROM sdcontrol sdAD
+  /MAKE n FROM ncontrol nAD
+  /INDEX=group(2) 
+  /KEEP=study year 
+  /NULL=KEEP.
+
+compute group=group-1.
+value label group 0 "control" 1 "AD".
+
+*generated IPD.
+* First expand dataset and generate observations from a standard N(0,1). distribution.
+set SEED 1234. 
+
+LOOP I = 1 to n. 
+compute ystar = rv.normal(0,1).
+XSAVE OUTFILE="D:\Report\Replication in R\tmp.sav" . 
+END LOOP. 
+execute. 
+
+
+GET
+  FILE='D:\Report\Replication in R\tmp.sav'.
+DATASET NAME DataSet2 WINDOW=FRONT.
+
+* Now generate from Y* IPD data with exactly the same mean and sd as in the summary data.
+
+* Calculate mean and sd of Ystar by study and arm.
+DATASET ACTIVATE DataSet2.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=study group
+  /ystar_mean=MEAN(ystar) 
+  /ystar_sd=SD(ystar).
+
+compute y = mean + (ystar - ystar_mean) * sd/ystar_sd.
+execute.
+
+compute arm = 1000*study+group.
+MEANS y
+BY arm.
+execute.
+
+
+* Encoding: UTF-8.
+*GET 
+  SAS DATA='D:\epidemiologie\Katerina Papadimitropoulou\meta analysis pseudo IPD\ipd.sas7bdat'. 
+*DATASET NAME DataSet1 WINDOW=FRONT.
+
+
+
+
+***********************************************************************************************************************************.
+* STUDY AND GROUP FIXED.
+***********************************************************************************************************************************.
+
+** model 1.
+** study fixed and group fixed
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated arm | subject(study*nr) covtype(VC).
+
+
+** model 2
+** study fixed and group fixed
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated study | subject(nr) covtype(VC).
+
+** model 3
+** study fixed and group fixed.
+** group specific variances estimated. .
+
+* Study fixed and group random.
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated group | subject(nr) covtype(VC).
+
+** model 4
+** study fixed and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION.
+ 
+***********************************************************************************************************************************.
+* STUDY FIXED, GROUP RANDOM.
+***********************************************************************************************************************************.
+
+** model 1.
+** study fixed and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(ID)
+  /repeated arm | subject(study*nr) covtype(VC).
+
+** model 2
+** study fixed and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(ID)
+  /repeated studyc | subject(study*nr) covtype(VC).
+
+** model 3
+** study fixed and group random
+** group specific variances estimated. 
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(UN)
+  /repeated group | subject(study*nr) covtype(DIAG).
+
+
+** model 4
+** study fixed and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /RANDOM=group| SUBJECT(study) COVTYPE(UN).
+
+
+***********************************************************************************************************************************.
+* STUDY AND GROUP RANDOM.
+***********************************************************************************************************************************.
+
+** model 1.
+** study and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated arm | subject(study*nr) covtype(VC).
+
+** model 2
+** study and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated studyc | subject(study*nr) covtype(VC).
+
+** model 3
+** study and group random
+** group specific variances estimated. 
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=group| SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated group | subject(study*nr) covtype(VC).
+
+
+** model 4
+** study and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=group  | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /RANDOM=intercept group| SUBJECT(study) COVTYPE(UN).
+
+
+* Encoding: UTF-8.
+data list free/ study year meancontrol sdcontrol ncontrol meanAD sdAD nAD.
+begin data. 
+1 Agarwal10 15,68 30,13 127 14,97 14,74 32
+2 Anello04 15,7 5,9 181 14,3 5,7 180
+3 AsitaDeSilva05 19,71 9,74 21 15,86 8,38 23
+4 Cascalheira09 20,39 1,7 36 18,8 5,3 19
+5 Clarke98 22,9 10 108 17,6 10,7 164
+6 Dominguez05 29,57 8,97 19 17,87 7,18 29
+7 Faux11 30,29 12,68 760 29,35 14,46 205
+8 Galimberti08 19,82 6,16 23 8,63 2,81 29
+9 Galluci04 14,05 11,1 42 11,55 6,12 137
+10 Hogervorst02 24,92 11,33 62 15,86 11,33 66
+11 Irizarry05 35,2 32,9 88 29,9 21,3 145
+12 Joosten97 8,61 3,20 49 7,93 4,2 52
+13 Karimi09 15,86 8,61 49 14,5 6,57 51
+14 Koseoglu07 28,09 3,4 40 21,41 4,4 51
+15 Lelhuber00 14,27 9,29 19 9,97 3,4 19
+16 Li04 37,2 21,2 30 29,2 12,7 30
+17 Linnebank10 14,05 7,74 60 15,62 7,04 60
+18 Lovati07 15,56 7,93 76 8,2 5,32 108
+19 Malaguarnera04 13,6 3,18 30 10,6 3,16 30
+20 Mizrahi04 4,8 2,6 155 4,3 3,2 75
+21 Morillas-Ruiz10 28,8 7,71 48 21,81 8,71 52
+22 Parnetti92 14,05 1,13 26 9,46 1,07 52
+23 Postiglione01 8,5 3,2 74 5,7 2,1 74
+24 Quadri05 16,8 5,5 79 13,1 5,9 111
+25 Ravaglia00 11,5 1,2 13 8 0,5 34
+26 Ravaglia04 16,57 7,26 29 11,1 4,3 51
+27 Regland92 20 18 32 16,7 15,461 53
+28 Religa03 17,13 12,21 100 19,28 7,66 99
+29 Selley02 25,09 4,7 25 14,74 4,26 27
+30 Serot01 13,16 4,83 28 12,12 4,87 30
+31 Villa09 19,03 4,08 18 16,77 4,69 20
+end data.
+DATASET NAME DataSet1 WINDOW=FRONT.
+
+* restructure data. 
+VARSTOCASES
+  /ID=id
+  /MAKE mean FROM meancontrol meanAD
+  /MAKE sd FROM sdcontrol sdAD
+  /MAKE n FROM ncontrol nAD
+  /INDEX=group(2) 
+  /KEEP=study year 
+  /NULL=KEEP.
+
+compute group=group-1.
+value label group 0 "control" 1 "AD".
+
+*generated IPD.
+* First expand dataset and generate observations from a standard N(0,1). distribution.
+set SEED 1234. 
+
+LOOP I = 1 to n. 
+compute ystar = rv.normal(0,1).
+XSAVE OUTFILE="D:\Report\Replication in R\tmp2.sav" . 
+END LOOP. 
+execute. 
+
+
+GET
+  FILE='D:\Report\Replication in R\tmp2.sav'.
+DATASET NAME DataSet2 WINDOW=FRONT.
+
+* Now generate from Y* IPD data with exactly the same mean and sd as in the summary data.
+
+* Calculate mean and sd of Ystar by study and arm.
+DATASET ACTIVATE DataSet2.
+AGGREGATE
+  /OUTFILE=* MODE=ADDVARIABLES
+  /BREAK=study group
+  /ystar_mean=MEAN(ystar) 
+  /ystar_sd=SD(ystar).
+
+compute y = mean + (ystar - ystar_mean) * sd/ystar_sd.
+execute.
+
+compute arm = 1000*study+group.
+MEANS y
+BY arm.
+execute.
+
+
+* Encoding: UTF-8.
+*GET 
+  SAS DATA='D:\epidemiologie\Katerina Papadimitropoulou\meta analysis pseudo IPD\ipd.sas7bdat'. 
+*DATASET NAME DataSet1 WINDOW=FRONT.
+
+
+***********************************************************************************************************************************.
+* STUDY AND GROUP FIXED.
+***********************************************************************************************************************************.
+
+** model 1.
+** study fixed and group fixed
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated arm | subject(study*nr) covtype(VC).
+
+
+
+** model 2
+** study fixed and group fixed
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated study | subject(nr) covtype(VC).
+
+
+** model 3
+** study fixed and group fixed.
+** group specific variances estimated. .
+
+* Study fixed and group random.
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /repeated group | subject(nr) covtype(VC).
+
+** model 4
+** study fixed and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION.
+ 
+
+***********************************************************************************************************************************.
+* STUDY FIXED, GROUP RANDOM.
+***********************************************************************************************************************************.
+
+** model 1.
+** study fixed and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(ID)
+  /repeated arm | subject(study*nr) covtype(VC).
+
+** model 2
+** study fixed and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(ID)
+  /repeated studyc | subject(study*nr) covtype(VC).
+
+** model 3
+** study fixed and group random
+** group specific variances estimated. 
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=group| SUBJECT(study) COVTYPE(UN)
+  /repeated group | subject(study*nr) covtype(DIAG).
+
+
+** model 4
+** study fixed and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=study group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /RANDOM=group| SUBJECT(study) COVTYPE(UN).
+
+***********************************************************************************************************************************.
+* STUDY AND GROUP RANDOM.
+***********************************************************************************************************************************.
+
+** model 1.
+** study and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study arm with group
+/FIXED=group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated arm | subject(study*nr) covtype(VC).
+
+** model 2
+** study and group random
+** study specific variances estimated. 
+compute nr = $casenum. 
+compute studyc=study.
+
+MIXED y BY study studyc with group
+/FIXED=group | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated studyc | subject(study*nr) covtype(VC).
+
+** model 3
+** study and group random
+** group specific variances estimated. 
+compute nr = $casenum. 
+
+MIXED y BY study  with group
+/FIXED=group| SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+/RANDOM=intercept group| SUBJECT(study) COVTYPE(UN)
+  /repeated group | subject(study*nr) covtype(VC).
+
+
+** model 4
+** study and group random
+** one residual variance;
+.
+MIXED y BY study with group
+/FIXED=group  | SSTYPE(3)
+  /METHOD=reml
+  /PRINT=SOLUTION
+  /RANDOM=intercept group| SUBJECT(study) COVTYPE(UN).
