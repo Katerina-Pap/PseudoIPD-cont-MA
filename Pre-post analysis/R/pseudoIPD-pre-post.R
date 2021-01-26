@@ -1,5 +1,3 @@
-rm(list=ls());
-
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Load libraries
 
@@ -51,7 +49,6 @@ for(study in unique(data.IPD$study))
 } 
 head(data.IPD2)  
 
-
 # temporary variable needed to generate the pseudo baseline and pseudo follow-up outcomes
 data.IPD2$ytmp3 <- data.IPD2$ytmp1*data.IPD2$correlation + sqrt(1-data.IPD2$correlation^2)*data.IPD2$resid/sqrt(1-data.IPD2$cor.ytmp^2)
 # generate pseudo baseline and pseudo follow-up outcomes
@@ -64,13 +61,13 @@ data.pseudoIPD <- data.IPD2[,c("study", "group", "y1", "y2")]
 rm(data.IPD2,data.IPD)
 
 # Check the mean and sd of y1 and y2, and correlation y1, y2
-check <-cbind(aggregate(y1~group+study, data=data.pseudoIPD, mean), 
+check <- cbind(aggregate(y1~group+study, data=data.pseudoIPD, mean), 
               aggregate(y2~group+study, data=data.pseudoIPD, mean)[3],
               aggregate(y1~group+study, data=data.pseudoIPD, sd)[3],
               aggregate(y2~group+study, data=data.pseudoIPD, sd)[3],
               as.vector(cbind(by(data.pseudoIPD, data.pseudoIPD[,c("group","study")], function(x) {cor(x$y1,x$y2)}))))
 
-colnames(check)<- c(colnames(check)[1:2], "meany1", "meany2","sdy1", "sdy2","cory1y2")
+colnames(check) <- c(colnames(check)[1:2], "meany1", "meany2","sdy1", "sdy2","cory1y2")
 check
 rm(check)
 
@@ -87,9 +84,9 @@ coef_ancova <- NULL
 se_ancova   <- NULL
 
 for (i in unique(data.pseudoIPD$study ))
-     {         fit <- lm(y2~ y1 + group, data.pseudoIPD[data.pseudoIPD$study==i,])
-       coef_ancova <- rbind(coef_ancova,fit$coefficients) 
-         se_ancova <- rbind(se_ancova,sqrt(diag(vcov(fit))))
+     {         fit = lm(y2~ y1 + group, data.pseudoIPD[data.pseudoIPD$study==i,])
+       coef_ancova = rbind(coef_ancova,fit$coefficients) 
+         se_ancova = rbind(se_ancova,sqrt(diag(vcov(fit))))
   }
      
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,7 +96,7 @@ two_stageMA <- data.frame(study=unique(data.pseudoIPD$study), coef_group=coef_an
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Run aggregate meta-analysis 
-MA=rma(yi=coef_group, sei=secoef_group, slab=study, method="REML", data=two_stageMA)
+MA <- rma(yi=coef_group, sei=secoef_group, slab=study, method="REML", data=two_stageMA)
 summary(MA); forest(MA)
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Ancovas per study with interaction of baseline and treatment effect on pseudo IPD for subsequent two-stage MA
