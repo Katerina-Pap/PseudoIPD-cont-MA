@@ -62,10 +62,10 @@ rm(data.IPD2,data.IPD)
 
 # Check the mean and sd of y1 and y2, and correlation y1, y2
 check <- cbind(aggregate(y1~group+study, data=data.pseudoIPD, mean), 
-              aggregate(y2~group+study, data=data.pseudoIPD, mean)[3],
-              aggregate(y1~group+study, data=data.pseudoIPD, sd)[3],
-              aggregate(y2~group+study, data=data.pseudoIPD, sd)[3],
-              as.vector(cbind(by(data.pseudoIPD, data.pseudoIPD[,c("group","study")], function(x) {cor(x$y1,x$y2)}))))
+               aggregate(y2~group+study, data=data.pseudoIPD, mean)[3],
+               aggregate(y1~group+study, data=data.pseudoIPD, sd)[3],
+               aggregate(y2~group+study, data=data.pseudoIPD, sd)[3],
+               as.vector(cbind(by(data.pseudoIPD, data.pseudoIPD[,c("group","study")], function(x) {cor(x$y1,x$y2)}))))
 
 colnames(check) <- c(colnames(check)[1:2], "meany1", "meany2","sdy1", "sdy2","cory1y2")
 check
@@ -130,7 +130,7 @@ ctrl <- lmeControl(opt="optim", msMaxIter=100)
 
 # arm and study specific variances estimated  
 
-FRstudyarm <- lme(fixed=y2 ~ y1center + group + as.factor(study) + y1center*as.factor(study), random= ~ -1 + groupcenter|study,
+FRstudyarm <- lme(y2 ~ y1center + group + as.factor(study) + y1center*as.factor(study), random= ~ -1 + groupcenter|study,
                   weights =varIdent(form=~study|arm), control=ctrl, data=data.pseudoIPD, method='REML')
 
 # estimated fixed effects
@@ -143,7 +143,7 @@ VarCorr((FRstudyarm))
 
 # the a*b interaction term includes also the main effects a and b
 # note, the error warning is because of the model is overparametrised
-FRstudyarmInt <- lme(fixed=y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group, random= ~ -1 + groupcenter + y1center*groupcenter|study,
+FRstudyarmInt <- lme(y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group, random= ~ -1 + groupcenter + y1center*groupcenter|study,
                  weights =varIdent(form=~study|arm), control=ctrl, data=data.pseudoIPD, method='REML')
 # estimated fixed effects
 summary(FRstudyarmInt)$tTable
@@ -153,39 +153,39 @@ intervals(FRstudyarmInt, which="fixed")
 VarCorr((FRstudyarmInt))
 
 # study specific variances estimated 
-FRstudy   <-  lme(fixed=y2 ~ y1center+ group + as.factor(study) + y1center*as.factor(study) , random= ~ -1 + groupcenter|study,
+FRstudy   <-  lme(y2 ~ y1center+ group + as.factor(study) + y1center*as.factor(study) , random= ~ -1 + groupcenter|study,
                   weights =varIdent(form=~1|study), control=ctrl, data=data.pseudoIPD, method='REML')
 summary(FRstudy)$tTable
 intervals(FRstudy, which="fixed")
 VarCorr((FRstudy))
 
-FRstudyInt <-   lme(fixed=y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group , random= ~ -1 + groupcenter + y1center*groupcenter|study,
+FRstudyInt <-   lme(y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group , random= ~ -1 + groupcenter + y1center*groupcenter|study,
                   weights =varIdent(form=~1|study), control=ctrl, data=data.pseudoIPD, method='REML')
 summary(FRstudyInt)$tTable
 intervals(FRstudyInt, which="fixed")
 VarCorr((FRstudyInt))
 
 #group specific variances estimated
-FRgroup   <-   lme(fixed=y2 ~ y1center + group+ as.factor(study) + y1center*as.factor(study) , random= ~ -1 + groupcenter|study,
+FRgroup   <-   lme(y2 ~ y1center + group+ as.factor(study) + y1center*as.factor(study) , random= ~ -1 + groupcenter|study,
                   weights =varIdent(form=~1|group), control=ctrl, data=data.pseudoIPD, method='REML')
 summary(FRgroup)$tTable
 intervals(FRgroup, which="fixed")
 VarCorr((FRgroup))
 
-FRgroupInt   <-   lme(fixed=y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group, random= ~ -1 + groupcenter + y1center*groupcenter|study,
+FRgroupInt   <-   lme(y2 ~ y1center*as.factor(study) + y1center*group + meany1bystudy:group, random= ~ -1 + groupcenter + y1center*groupcenter|study,
                   weights =varIdent(form=~1|group), control=ctrl, data=data.pseudoIPD, method='REML')
 summary(FRgroupInt)$tTable
 intervals(FRgroupInt, which="fixed")
 VarCorr((FRgroupInt))
 
 #one residual variance estimated
-FRone        <-   lme(fixed=y2 ~ y1center + group + as.factor(study) + y1center*as.factor(study) , random= ~-1 + groupcenter|study,
+FRone        <-   lme(y2 ~ y1center + group + as.factor(study) + y1center*as.factor(study) , random= ~-1 + groupcenter|study,
                   control=ctrl, data=data.pseudoIPD, method='REML')
 summary(FRone)$tTable
 intervals(FRone, which="fixed")
 VarCorr((FRone))
 
-FRoneInt     <-   lme(fixed=y2 ~ y1center*as.factor(study) + y1center*group +meany1bystudy:group , random= ~ -1 + groupcenter + y1center*groupcenter|study,
+FRoneInt     <-   lme(y2 ~ y1center*as.factor(study) + y1center*group +meany1bystudy:group , random= ~ -1 + groupcenter + y1center*groupcenter|study,
                   control=ctrl,data=data.pseudoIPD, method='REML')
 summary(FRoneInt)$tTable
 intervals(FRoneInt, which="fixed")
