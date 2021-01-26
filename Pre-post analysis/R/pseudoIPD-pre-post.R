@@ -195,46 +195,46 @@ VarCorr((FRoneInt))
 #  Random study intercept and random treatment effect ANCOVA + ANCOVA with interaction 
 
 # arm and study specific variances estimated  
-RRstudyarm    <-  lme(fixed=y2 ~ y1center  + group, random=~ y1center + groupcenter|study, weights =varIdent(form=~study|arm), control=ctrl,
+RRstudyarm    <-  lme(y2 ~ y1center  + group, random=~ y1center + groupcenter|study, weights =varIdent(form=~study|arm), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRstudyarm)$tTable
 intervals(RRstudyarm, which="fixed")
 VarCorr((RRstudyarm))
 
-RRstudyarmInt <-  lme(fixed=y2 ~ y1center*group + meany1bystudy:group, random=~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~study|arm), control=ctrl,
+RRstudyarmInt <-  lme(y2 ~ y1center*group + meany1bystudy:group, random=~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~study|arm), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRstudyarmInt)$tTable # y1center:groupcenter is the estimate of interest and it is appropriately estimated; the remaining coefficients are unstable
 intervals(RRstudyarmInt, which="fixed")
 VarCorr((RRstudyarmInt))
 
 #study specific variances estimated
-RRstudy       <-  lme(fixed=y2 ~ y1center  + group, random=~ y1center + groupcenter|study, weights =varIdent(form=~1|study), control=ctrl,
+RRstudy       <-  lme(y2 ~ y1center  + group, random=~ y1center + groupcenter|study, weights =varIdent(form=~1|study), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRstudy)$tTable
 intervals(RRstudy, which="fixed")
 VarCorr((RRstudy))
 
-RRstudyInt    <-  lme(fixed=y2 ~  y1center*group + meany1bystudy:group, random= ~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~1|study), control=ctrl,
+RRstudyInt    <-  lme(y2 ~  y1center*group + meany1bystudy:group, random= ~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~1|study), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRstudyInt)$tTable # y1center:groupcenter is the estimate of interest and it is appropriately estimated; the remaining coefficients are unstable
 intervals(RRstudyInt, which="fixed")
 VarCorr((RRstudyInt))
 
 # group specific variances estimated 
-RRgroup       <-  lme(fixed=y2 ~ y1center  + group, random= ~ y1center + groupcenter|study, weights =varIdent(form=~1|group), control=ctrl,
+RRgroup       <-  lme(y2 ~ y1center  + group, random= ~ y1center + groupcenter|study, weights =varIdent(form=~1|group), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRgroup)$tTable
 intervals(RRgroup, which="fixed")
 VarCorr((RRgroup))
 
-RRgroupInt    <-  lme(fixed=y2 ~ y1center*group + meany1bystudy:group, random= ~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~1|group), control=ctrl,
+RRgroupInt    <-  lme(y2 ~ y1center*group + meany1bystudy:group, random= ~ y1center + groupcenter + y1center*groupcenter|study, weights =varIdent(form=~1|group), control=ctrl,
                   data=data.pseudoIPD, method='REML')
 summary(RRgroupInt)$tTable # y1center:groupcenter is the estimate of interest and it is appropriately estimated; the remaining coefficients are unstable
 intervals(RRgroupInt, which="fixed")
 VarCorr((RRgroupInt))
 
 #one residual variance estimated
-RRone         <-  lme(fixed=y2 ~ y1center  + group, random= ~ y1center + groupcenter|study,  control=ctrl, data=data.pseudoIPD, method='REML')
+RRone         <-  lme(y2 ~ y1center  + group, random= ~ y1center + groupcenter|study,  control=ctrl, data=data.pseudoIPD, method='REML')
 summary(RRone)$tTable
 intervals(RRone, which="fixed")
 VarCorr((RRone))
