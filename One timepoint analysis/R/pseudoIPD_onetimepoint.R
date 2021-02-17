@@ -70,13 +70,13 @@ summary(m2); intervals(m2)
 # study and group both fixed
 # group specific variances estimated
 m3 <- gls(y~ group + as.factor(study), correlation=corCompSymm(form=~group|study), weights=varIdent(form=~1|group), control=ctrl, data.IPD)
-summary(m3); intervals(m3)
+summary(m3); intervals(m3, which="fixed")
 
 # model 4
 # study and group both fixed
 # one residual variance
 m4 <- gls(y~group +as.factor(study) ,correlation=corCompSymm(form=~1|study), data.IPD)
-summary(m4); intervals(m4)
+summary(m4); intervals(m4, which="fixed")
 
 #--------------------------------------------------
 #     STUDY FIXED AND GROUP RANDOM
