@@ -86,25 +86,25 @@ summary(m4); intervals(m4, which="fixed")
 # arm specific variances estimated
 ctrl <- lmeControl(opt='optim');
 m1 <- lme(y~ group + as.factor(study), random=~group|study, correlation=corCompSymm(form=~arm|study), weights=varIdent(form=~1|arm),control=ctrl, data.IPD)
-summary(m1); VarCorr(m1); intervals(m1)
+summary(m1); VarCorr(m1); intervals(m1, which="fixed")
 
 # model 2
 # study and group both random
 # trial specific variances estimated;
 m2 <- lme(y~ group +as.factor(study), random=~ group|study, correlation=corCompSymm(form=~arm|study),weights=varIdent(form=~1|study),control=ctrl, data.IPD)
-summary(m2); VarCorr(m2); intervals(m2)
+summary(m2); VarCorr(m2); intervals(m2, which="fixed")
 
 # model 3
 # study and group both random
 # group specific variances estimated
 m3<- lme(y~ group+as.factor(study), random=~ group|study, correlation=corCompSymm(form=~group|study),weights=varIdent(form=~1|group), data.IPD)
-summary(m3); VarCorr(m3); intervals(m3)
+summary(m3); VarCorr(m3); intervals(m3, which="fixed")
 
 # model 4
 # study and group both random
 # one residual variance
 m4<- lme(y~ group + as.factor(study), random=~ group|study, correlation=corCompSymm(form=~1|study), data.IPD)
-summary(m4); VarCorr(m4); intervals(m4)
+summary(m4); VarCorr(m4); intervals(m4, which="fixed")
 
 
 #--------------------------------------------------
@@ -115,7 +115,7 @@ summary(m4); VarCorr(m4); intervals(m4)
 # arm specific variances estimated
 ctrl <- lmeControl(opt='optim');
 m1 <- lme(y~ group, random=~group|study, correlation=corCompSymm(form=~arm|study), weights=varIdent(form=~1|arm), control=ctrl, data.IPD)
-summary(m1); VarCorr(m1); intervals(m1)
+summary(m1); VarCorr(m1); intervals(m1, which="fixed")
 
 # model 2
 # study and group both random
