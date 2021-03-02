@@ -23,8 +23,8 @@ data.long <- reshape(data.wide, direction='long',
 # First expand dataset and generate observations from a standard N(0,1) distribution.
 
 data.IPD <- data.frame(study = rep(data.long$study, data.long$n),
-                       mean  = rep(data.long$mean, data.long$n),
-                       sd    = rep(data.long$sd, data.long$n),
+                       mean  = rep(data.long$mean,  data.long$n),
+                       sd    = rep(data.long$sd,    data.long$n),
                        group = rep(data.long$group, data.long$n))
 
 set.seed(64870236)
@@ -34,8 +34,8 @@ head(data.IPD)
 # Now generate from Y* IPD data with exactly the same mean and sd as in the summary data.
 # Calculate mean and sd of Ystar by study and arm.
 
-mean.IPDtmp  <- aggregate(ytmp~group+study, data =data.IPD, mean)
-sd.IPDtmp    <- aggregate(ytmp~group+study, data =data.IPD, sd)
+mean.IPDtmp  <- aggregate(ytmp~group+study, data=data.IPD, mean)
+sd.IPDtmp    <- aggregate(ytmp~group+study, data=data.IPD, sd)
 names(mean.IPDtmp)[names(mean.IPDtmp) == 'ytmp'] <- 'ytmpmean'
 names(sd.IPDtmp)[names(sd.IPDtmp) == 'ytmp']     <- 'ytmpsd'
 
@@ -75,7 +75,7 @@ summary(m3); intervals(m3, which="fixed")
 # model 4
 # study and group both fixed
 # one residual variance
-m4 <- gls(y~group +as.factor(study) ,correlation=corCompSymm(form=~1|study), data.IPD)
+m4 <- gls(y~group +as.factor(study), correlation=corCompSymm(form=~1|study), data.IPD)
 summary(m4); intervals(m4, which="fixed")
 
 #--------------------------------------------------
@@ -91,21 +91,20 @@ summary(m1); VarCorr(m1); intervals(m1, which="fixed")
 # model 2
 # study and group both random
 # trial specific variances estimated;
-m2 <- lme(y~ group +as.factor(study), random=~ group|study, correlation=corCompSymm(form=~arm|study),weights=varIdent(form=~1|study),control=ctrl, data.IPD)
+m2 <- lme(y~ group +as.factor(study), random=~group|study, correlation=corCompSymm(form=~arm|study),weights=varIdent(form=~1|study),control=ctrl, data.IPD)
 summary(m2); VarCorr(m2); intervals(m2, which="fixed")
 
 # model 3
 # study and group both random
 # group specific variances estimated
-m3<- lme(y~ group+as.factor(study), random=~ group|study, correlation=corCompSymm(form=~group|study),weights=varIdent(form=~1|group), data.IPD)
+m3<- lme(y~ group+as.factor(study), random=~group|study, correlation=corCompSymm(form=~group|study),weights=varIdent(form=~1|group), data.IPD)
 summary(m3); VarCorr(m3); intervals(m3, which="fixed")
 
 # model 4
 # study and group both random
 # one residual variance
-m4<- lme(y~ group + as.factor(study), random=~ group|study, correlation=corCompSymm(form=~1|study), data.IPD)
+m4<- lme(y~ group + as.factor(study), random=~group|study, correlation=corCompSymm(form=~1|study), data.IPD)
 summary(m4); VarCorr(m4); intervals(m4, which="fixed")
-
 
 #--------------------------------------------------
 #     STUDY RANDOM AND GROUP RANDOM
