@@ -10,13 +10,13 @@ data.wide <- read.table("iron.txt", header=TRUE)
 # Make long format
 data.long <- reshape(data.wide, direction='long', 
                              varying = list(
-                                  c('m1i',	'm2i'),
-                                  c('sd1i','sd2i'),
-                                  c('n1i',	'n2i')),
+                                             c('m1i', 'm2i'),
+                                             c('sd1i', 'sd2i'),
+                                             c('n1i', 'n2i')),
                              timevar='group',
-                             times=c(0,1),
-                             v.names=c('mean','sd','n'),
-                             idvar='study')
+                             times  = c(0,1),
+                             v.names= c('mean','sd','n'),
+                             idvar=  'study')
 #-----------------------------------------------------------------------------------------------------------------------------
 
 # Generate IPD
