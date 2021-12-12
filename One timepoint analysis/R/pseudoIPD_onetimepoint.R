@@ -28,7 +28,7 @@ data.IPD <- data.frame(study = rep(data.long$study, data.long$n),
                        group = rep(data.long$group, data.long$n))
 
 set.seed(64870236)
-data.IPD$ytmp <- rnorm(nrow(data.IPD),0,1)
+data.IPD$ytmp <- rnorm(nrow(data.IPD), 0, 1)
 head(data.IPD)
 
 # Now generate from Y* IPD data with exactly the same mean and sd as in the summary data.
