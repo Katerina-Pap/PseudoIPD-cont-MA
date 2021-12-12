@@ -42,8 +42,8 @@ names(sd.IPDtmp)[names(sd.IPDtmp) == 'ytmp']     <- 'ytmpsd'
 data.IPD <- merge(data.IPD, mean.IPDtmp, by = c("study", "group"))
 data.IPD <- merge(data.IPD, sd.IPDtmp, by= c("study", "group"))
 
-# generate the outcome
-data.IPD$y <- data.IPD$mean + (data.IPD$ytmp -data.IPD$ytmpmean) * (data.IPD$sd/data.IPD$ytmpsd)
+# Generate the outcome
+data.IPD$y <- data.IPD$mean + (data.IPD$ytmp - data.IPD$ytmpmean) * (data.IPD$sd/data.IPD$ytmpsd)
 data.IPD$arm <-  1000* data.IPD$study+ data.IPD$group
 
 #-----------------------------------------------------------------------------------------------------------------------------
